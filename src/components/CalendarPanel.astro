@@ -1,0 +1,54 @@
+---
+---
+
+<section class="calendar-panel" aria-label="Kalender agenda">
+	<header class="calendar-header">
+		<div class="month-controls">
+			<select id="month-select" aria-label="Pilih bulan">
+				<option value="0">Januari</option>
+				<option value="1">Februari</option>
+				<option value="2">Maret</option>
+				<option value="3">April</option>
+				<option value="4">Mei</option>
+				<option value="5">Juni</option>
+				<option value="6">Juli</option>
+				<option value="7">Agustus</option>
+				<option value="8">September</option>
+				<option value="9">Oktober</option>
+				<option value="10">November</option>
+				<option value="11">Desember</option>
+			</select>
+			<input
+				id="year-select"
+				class="year-select"
+				type="number"
+				min="1900"
+				max="9999"
+				step="1"
+				aria-label="Pilih tahun"
+			/>
+		</div>
+
+		<div class="calendar-navigation">
+			<button id="previous-month" class="icon-button" type="button" aria-label="Bulan sebelumnya">
+				<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
+			</button>
+			<button id="next-month" class="icon-button" type="button" aria-label="Bulan berikutnya">
+				<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
+			</button>
+		</div>
+	</header>
+
+	<div class="weekdays" aria-hidden="true">
+		<span>Min</span><span>Sen</span><span>Sel</span><span>Rab</span><span>Kam</span><span>Jum</span><span>Sab</span>
+	</div>
+
+	<div id="calendar-grid" class="calendar-grid" role="grid" aria-label="Tanggal bulan ini"></div>
+
+	<div class="calendar-legend">
+		<span><i class="legend-dot marked"></i> Ada agenda</span>
+		<span><i class="legend-dot selected-legend"></i> Dipilih</span>
+		<span><i class="legend-dot today-legend"></i> Hari ini</span>
+	</div>
+</section>
+

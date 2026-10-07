@@ -1,0 +1,33 @@
+---
+---
+
+<aside class="sidebar">
+	<section class="entry-section" aria-labelledby="entry-heading">
+		<div class="section-heading">
+			<div>
+				<h2 id="entry-heading">Tambah jadwal</h2>
+			</div>
+			<span class="date-chip" id="selected-date-chip"></span>
+		</div>
+
+		<form id="agenda-form">
+			<label for="agenda-title">Nama agenda</label>
+			<input
+				id="agenda-title"
+				name="title"
+				type="text"
+				maxlength="120"
+				placeholder="Contoh: Meeting dengan klien"
+				required
+			/>
+			<label for="agenda-time">Jam</label>
+			<input id="agenda-time" name="time" type="time" value="09:00" required />
+			<button class="add-button" type="submit">
+				<span aria-hidden="true">+</span> Tandai tanggal
+			</button>
+		</form>
+
+		<p class="form-status" id="form-status" role="status" aria-live="polite"></p>
+	</section>
+</aside>
+
