@@ -4,29 +4,53 @@
 <section class="calendar-panel" aria-label="Kalender agenda">
 	<header class="calendar-header">
 		<div class="month-controls">
-			<select id="month-select" aria-label="Pilih bulan">
-				<option value="0">Januari</option>
-				<option value="1">Februari</option>
-				<option value="2">Maret</option>
-				<option value="3">April</option>
-				<option value="4">Mei</option>
-				<option value="5">Juni</option>
-				<option value="6">Juli</option>
-				<option value="7">Agustus</option>
-				<option value="8">September</option>
-				<option value="9">Oktober</option>
-				<option value="10">November</option>
-				<option value="11">Desember</option>
-			</select>
-			<input
-				id="year-select"
-				class="year-select"
-				type="number"
-				min="1900"
-				max="9999"
-				step="1"
-				aria-label="Pilih tahun"
-			/>
+			<!-- Custom month picker -->
+			<div class="custom-month-picker" id="custom-month-picker">
+				<button
+					type="button"
+					class="month-picker-trigger"
+					id="month-picker-trigger"
+					aria-haspopup="listbox"
+					aria-expanded="false"
+					aria-label="Pilih bulan"
+				>
+					<span id="month-display">Oktober</span>
+					<svg class="month-chevron" viewBox="0 0 16 16" aria-hidden="true" fill="none">
+						<path d="m4 6 4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+					</svg>
+				</button>
+				<div class="month-dropdown" id="month-dropdown" role="listbox" aria-label="Pilih bulan" hidden>
+					<div class="month-grid">
+						<button type="button" role="option" class="month-option" data-month="0">Jan</button>
+						<button type="button" role="option" class="month-option" data-month="1">Feb</button>
+						<button type="button" role="option" class="month-option" data-month="2">Mar</button>
+						<button type="button" role="option" class="month-option" data-month="3">Apr</button>
+						<button type="button" role="option" class="month-option" data-month="4">Mei</button>
+						<button type="button" role="option" class="month-option" data-month="5">Jun</button>
+						<button type="button" role="option" class="month-option" data-month="6">Jul</button>
+						<button type="button" role="option" class="month-option" data-month="7">Ags</button>
+						<button type="button" role="option" class="month-option" data-month="8">Sep</button>
+						<button type="button" role="option" class="month-option" data-month="9">Okt</button>
+						<button type="button" role="option" class="month-option" data-month="10">Nov</button>
+						<button type="button" role="option" class="month-option" data-month="11">Des</button>
+					</div>
+				</div>
+			</div>
+
+			<!-- Custom year picker -->
+			<div class="custom-year-picker">
+				<button type="button" class="year-step-btn" id="year-down" aria-label="Tahun sebelumnya">‹</button>
+				<input
+					type="number"
+					id="year-input"
+					class="year-input"
+					value="2026"
+					min="1900"
+					max="9999"
+					aria-label="Tahun"
+				/>
+				<button type="button" class="year-step-btn" id="year-up" aria-label="Tahun berikutnya">›</button>
+			</div>
 		</div>
 
 		<div class="calendar-navigation">
@@ -46,9 +70,8 @@
 	<div id="calendar-grid" class="calendar-grid" role="grid" aria-label="Tanggal bulan ini"></div>
 
 	<div class="calendar-legend">
-		<span><i class="legend-dot marked"></i> Ada agenda</span>
+		<span><i class="legend-dot marked-legend"></i> Ada agenda</span>
 		<span><i class="legend-dot selected-legend"></i> Dipilih</span>
 		<span><i class="legend-dot today-legend"></i> Hari ini</span>
 	</div>
 </section>
-

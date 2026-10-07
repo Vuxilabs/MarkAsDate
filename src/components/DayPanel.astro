@@ -11,7 +11,23 @@
 		<div>
 			<h2 id="day-heading"></h2>
 		</div>
-		<span id="agenda-count" class="count-badge">0</span>
+		<div class="day-panel-header-right">
+			<span id="agenda-count" class="count-badge">0</span>
+			<button
+				type="button"
+				id="reset-all-btn"
+				class="reset-btn"
+				title="Reset semua agenda"
+				aria-label="Hapus semua agenda"
+			>
+				<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+					<polyline points="3 6 5 6 21 6" />
+					<path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+					<path d="M10 11v6M14 11v6" />
+					<path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+				</svg>
+			</button>
+		</div>
 	</div>
 
 	<div id="day-agendas" class="day-agendas"></div>
@@ -20,16 +36,21 @@
 		<strong>Hari masih kosong</strong>
 	</div>
 
-	<section class="markdown-section" aria-labelledby="markdown-heading">
-		<div class="section-heading markdown-heading">
+	<!-- Marktime export/import section -->
+	<section class="marktime-section" aria-labelledby="marktime-heading">
+		<div class="section-heading marktime-heading-row">
 			<div>
-				<h2 id="markdown-heading">Markdown</h2>
+				<h2 id="marktime-heading" class="marktime-title">Marktime</h2>
 			</div>
-			<button class="copy-button" id="copy-markdown" type="button" aria-label="Salin Markdown">
-				Salin
-			</button>
+			<div class="marktime-actions">
+				<button class="mt-action-btn" id="copy-marktime" type="button" aria-label="Salin marktime">Salin</button>
+				<button class="mt-action-btn" id="export-marktime" type="button" aria-label="Ekspor file .marktime">Ekspor</button>
+				<label class="mt-action-btn import-label" title="Impor file .marktime">
+					Impor
+					<input type="file" id="import-marktime" accept=".marktime" hidden aria-hidden="true" />
+				</label>
+			</div>
 		</div>
-		<pre id="markdown-output" class="markdown-output" aria-label="Hasil Markdown"></pre>
+		<pre id="marktime-output" class="marktime-output" aria-label="Konten format marktime" aria-live="polite"></pre>
 	</section>
 </aside>
-

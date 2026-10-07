@@ -1,7 +1,7 @@
 ---
 ---
 
-<aside class="sidebar">
+<aside class="sidebar" id="sidebar">
 	<section class="entry-section" aria-labelledby="entry-heading">
 		<div class="section-heading">
 			<div>
@@ -10,7 +10,8 @@
 			<span class="date-chip" id="selected-date-chip"></span>
 		</div>
 
-		<form id="agenda-form">
+		<form id="agenda-form" novalidate>
+			<!-- Title -->
 			<label for="agenda-title">Nama agenda</label>
 			<input
 				id="agenda-title"
@@ -18,16 +19,112 @@
 				type="text"
 				maxlength="120"
 				placeholder="Contoh: Meeting dengan klien"
+				autocomplete="off"
 				required
 			/>
-			<label for="agenda-time">Jam</label>
-			<input id="agenda-time" name="time" type="time" value="09:00" required />
-			<button class="add-button" type="submit">
-				<span aria-hidden="true">+</span> Tandai tanggal
-			</button>
-		</form>
 
-		<p class="form-status" id="form-status" role="status" aria-live="polite"></p>
+			<!-- Label -->
+			<div class="field-group">
+				<label>Label <span class="optional">(opsional)</span></label>
+				<div class="label-inputs">
+					<input
+						id="label-name"
+						name="labelName"
+						type="text"
+						maxlength="40"
+						placeholder="Nama label"
+						autocomplete="off"
+					/>
+					<div class="color-picker-wrap" id="color-picker-wrap" title="Pilih warna label">
+						<span class="color-preview-swatch" id="color-swatch" style="background:#3B82F6"></span>
+						<input type="color" id="label-color" name="labelColor" value="#3B82F6" tabindex="-1" aria-label="Warna label" />
+					</div>
+				</div>
+			</div>
+
+			<!-- Description -->
+			<label for="agenda-desc">Deskripsi <span class="optional">(opsional)</span></label>
+			<textarea
+				id="agenda-desc"
+				name="description"
+				maxlength="500"
+				placeholder="Deskripsi singkat agenda…"
+				rows="2"
+			></textarea>
+
+			<!-- Location -->
+			<label for="agenda-location">Lokasi <span class="optional">(opsional)</span></label>
+			<input
+				id="agenda-location"
+				name="location"
+				type="text"
+				maxlength="120"
+				placeholder="Contoh: Ruang Konferensi A"
+				autocomplete="off"
+			/>
+
+			<!-- Time Ranges -->
+			<div class="field-group time-section">
+				<label>Waktu <span class="optional">(opsional)</span></label>
+
+				<div class="time-range-picker">
+					<!-- Start time -->
+					<div class="time-picker-wrap">
+						<span class="tp-label-text">Mulai</span>
+						<div class="time-picker" id="tp-start" data-h="9" data-m="0">
+							<div class="tp-col">
+								<button type="button" class="tp-arrow" data-target="tp-start" data-part="h" data-dir="1" aria-label="Tambah jam mulai">▲</button>
+								<input type="number" class="tp-num tp-h-val" min="0" max="23" value="09" aria-label="Jam mulai" />
+								<button type="button" class="tp-arrow" data-target="tp-start" data-part="h" data-dir="-1" aria-label="Kurangi jam mulai">▼</button>
+							</div>
+							<span class="tp-colon">:</span>
+							<div class="tp-col">
+								<button type="button" class="tp-arrow" data-target="tp-start" data-part="m" data-dir="5" aria-label="Tambah menit mulai">▲</button>
+								<input type="number" class="tp-num tp-m-val" min="0" max="55" step="5" value="00" aria-label="Menit mulai" />
+								<button type="button" class="tp-arrow" data-target="tp-start" data-part="m" data-dir="-5" aria-label="Kurangi menit mulai">▼</button>
+							</div>
+						</div>
+					</div>
+
+					<span class="tp-to-sep" aria-hidden="true">→</span>
+
+					<!-- End time -->
+					<div class="time-picker-wrap">
+						<span class="tp-label-text">Selesai</span>
+						<div class="time-picker" id="tp-end" data-h="10" data-m="0">
+							<div class="tp-col">
+								<button type="button" class="tp-arrow" data-target="tp-end" data-part="h" data-dir="1" aria-label="Tambah jam selesai">▲</button>
+								<input type="number" class="tp-num tp-h-val" min="0" max="23" value="10" aria-label="Jam selesai" />
+								<button type="button" class="tp-arrow" data-target="tp-end" data-part="h" data-dir="-1" aria-label="Kurangi jam selesai">▼</button>
+							</div>
+							<span class="tp-colon">:</span>
+							<div class="tp-col">
+								<button type="button" class="tp-arrow" data-target="tp-end" data-part="m" data-dir="5" aria-label="Tambah menit selesai">▲</button>
+								<input type="number" class="tp-num tp-m-val" min="0" max="55" step="5" value="00" aria-label="Menit selesai" />
+								<button type="button" class="tp-arrow" data-target="tp-end" data-part="m" data-dir="-5" aria-label="Kurangi menit selesai">▼</button>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<button type="button" id="add-time-range" class="add-range-btn">
+					<span aria-hidden="true">+</span> Tambah Waktu
+				</button>
+
+				<div id="time-ranges-list" class="time-ranges-list" role="list" aria-label="Daftar waktu yang ditambahkan"></div>
+			</div>
+
+			<!-- Status -->
+			<p class="form-status" id="form-status" role="status" aria-live="polite"></p>
+
+			<!-- Actions — kept at the bottom of the form -->
+			<div class="form-actions">
+				<button type="button" id="cancel-edit" class="cancel-button" hidden>Batal</button>
+				<button class="add-button" type="submit" id="submit-btn">
+					<span aria-hidden="true">+</span>
+					<span id="submit-label">Tandai Tanggal</span>
+				</button>
+			</div>
+		</form>
 	</section>
 </aside>
-
