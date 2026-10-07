@@ -13,11 +13,6 @@
 	<body>
 		<main class="app-shell">
 			<aside class="sidebar">
-				<a class="brand" href="/" aria-label="MarkAsDate beranda">
-					<span class="brand-mark" aria-hidden="true">M</span>
-					<span>MarkAsDate</span>
-				</a>
-
 				<section class="entry-section" aria-labelledby="entry-heading">
 					<div class="section-heading">
 						<div>
@@ -37,23 +32,28 @@
 					<p class="form-status" id="form-status" role="status" aria-live="polite"></p>
 				</section>
 
-				<section class="markdown-section" aria-labelledby="markdown-heading">
-					<div class="section-heading markdown-heading">
-						<div>
-							<h2 id="markdown-heading">Markdown</h2>
-						</div>
-						<button class="copy-button" id="copy-markdown" type="button" aria-label="Salin Markdown">Salin</button>
-					</div>
-					<pre id="markdown-output" class="markdown-output" aria-label="Hasil Markdown"></pre>
-				</section>
 			</aside>
 
 			<section class="calendar-panel" aria-label="Kalender agenda">
 				<header class="calendar-header">
-					<div>
-						<h2 id="month-title"></h2>
-					</div>
 					<div class="month-controls">
+						<select id="month-select" aria-label="Pilih bulan">
+							<option value="0">Januari</option>
+							<option value="1">Februari</option>
+							<option value="2">Maret</option>
+							<option value="3">April</option>
+							<option value="4">Mei</option>
+							<option value="5">Juni</option>
+							<option value="6">Juli</option>
+							<option value="7">Agustus</option>
+							<option value="8">September</option>
+							<option value="9">Oktober</option>
+							<option value="10">November</option>
+							<option value="11">Desember</option>
+						</select>
+						<input id="year-select" class="year-select" type="number" min="1900" max="9999" step="1" aria-label="Pilih tahun" />
+					</div>
+					<div class="calendar-navigation">
 						<button id="previous-month" class="icon-button" type="button" aria-label="Bulan sebelumnya">
 							<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
 						</button>
@@ -70,10 +70,15 @@
 				<div class="calendar-legend">
 					<span><i class="legend-dot marked"></i> Ada agenda</span>
 					<span><i class="legend-dot selected-legend"></i> Dipilih</span>
+					<span><i class="legend-dot today-legend"></i> Hari ini</span>
 				</div>
 			</section>
 
 			<aside class="day-panel" aria-labelledby="day-heading">
+				<a class="brand" href="/" aria-label="MarkAsDate beranda">
+					<span class="brand-mark" aria-hidden="true">M</span>
+					<span>MarkAsDate</span>
+				</a>
 				<div class="day-panel-header">
 					<div>
 						<h2 id="day-heading"></h2>
@@ -84,6 +89,15 @@
 				<div id="empty-day" class="empty-day">
 					<strong>Hari masih kosong</strong>
 				</div>
+				<section class="markdown-section" aria-labelledby="markdown-heading">
+					<div class="section-heading markdown-heading">
+						<div>
+							<h2 id="markdown-heading">Markdown</h2>
+						</div>
+						<button class="copy-button" id="copy-markdown" type="button" aria-label="Salin Markdown">Salin</button>
+					</div>
+					<pre id="markdown-output" class="markdown-output" aria-label="Hasil Markdown"></pre>
+				</section>
 			</aside>
 		</main>
 
@@ -101,7 +115,8 @@
 			let visibleYear = now.getFullYear();
 			let visibleMonth = now.getMonth();
 
-			const monthTitle = document.querySelector('#month-title') as HTMLElement;
+			const monthSelect = document.querySelector('#month-select') as HTMLSelectElement;
+			const yearSelect = document.querySelector('#year-select') as HTMLInputElement;
 			const calendarGrid = document.querySelector('#calendar-grid') as HTMLElement;
 			const dayHeading = document.querySelector('#day-heading') as HTMLElement;
 			const selectedDateChip = document.querySelector('#selected-date-chip') as HTMLElement;
@@ -143,11 +158,20 @@
 
 			function changeMonth(offset: number) {
 				const nextMonth = new Date(visibleYear, visibleMonth + offset, 1);
-				visibleYear = nextMonth.getFullYear();
-				visibleMonth = nextMonth.getMonth();
+				setVisibleMonth(nextMonth.getFullYear(), nextMonth.getMonth());
+			}
+
+			function setVisibleMonth(year: number, month: number) {
+				if (year < 1900 || year > 9999) {
+					formStatus.textContent = 'Tahun kalender tersedia antara 1900 dan 9999.';
+					return;
+				}
+				visibleYear = year;
+				visibleMonth = month;
 				const day = Number(selectedDate.split('-')[2]);
 				const lastDay = new Date(visibleYear, visibleMonth + 1, 0).getDate();
 				selectedDate = toDateKey(new Date(visibleYear, visibleMonth, Math.min(day, lastDay)));
+				formStatus.textContent = '';
 				render();
 			}
 
@@ -173,20 +197,24 @@
 			}
 
 			function renderCalendar() {
-				monthTitle.textContent = new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric' })
-					.format(new Date(visibleYear, visibleMonth, 1));
+				monthSelect.value = String(visibleMonth);
+				yearSelect.value = String(visibleYear);
 				const firstDay = new Date(visibleYear, visibleMonth, 1).getDay();
 				const daysInMonth = new Date(visibleYear, visibleMonth + 1, 0).getDate();
 				const markedDates = new Set(agendas.map((agenda) => agenda.date));
+				const today = toDateKey(new Date());
 				const cells = Array.from({ length: firstDay }, () => '<div class="day-cell empty-cell" aria-hidden="true"></div>');
 
 				for (let day = 1; day <= daysInMonth; day++) {
 					const dateKey = toDateKey(new Date(visibleYear, visibleMonth, day));
 					const isSelected = dateKey === selectedDate;
 					const isMarked = markedDates.has(dateKey);
-					const classes = ['day-cell', isSelected ? 'selected' : '', isMarked ? 'marked' : ''].filter(Boolean).join(' ');
+					const isToday = dateKey === today;
+					const isSunday = new Date(visibleYear, visibleMonth, day).getDay() === 0;
+					const classes = ['day-cell', isSelected ? 'selected' : '', isMarked ? 'marked' : '', isToday ? 'today' : '', isSunday ? 'sunday' : ''].filter(Boolean).join(' ');
 					const agendaLabel = isMarked ? ', ada agenda' : '';
-					cells.push(`<button class="${classes}" type="button" role="gridcell" data-date="${dateKey}" aria-label="${day} ${formatDate(dateKey, { month: 'long', year: 'numeric' })}${agendaLabel}" aria-pressed="${isSelected}"><span>${day}</span>${isMarked ? '<i class="day-dot" aria-hidden="true"></i>' : ''}</button>`);
+					const todayLabel = isToday ? ', hari ini' : '';
+					cells.push(`<button class="${classes}" type="button" role="gridcell" data-date="${dateKey}" aria-label="${day} ${formatDate(dateKey, { month: 'long', year: 'numeric' })}${agendaLabel}${todayLabel}" aria-pressed="${isSelected}"><span>${day}</span>${isMarked ? '<i class="day-dot" aria-hidden="true"></i>' : isToday ? '<i class="today-dot" aria-hidden="true"></i>' : ''}</button>`);
 				}
 
 				calendarGrid.innerHTML = cells.join('');
@@ -259,6 +287,20 @@
 				changeMonth(1);
 			});
 
+			monthSelect.addEventListener('change', () => {
+				setVisibleMonth(visibleYear, Number(monthSelect.value));
+			});
+
+			yearSelect.addEventListener('change', () => {
+				const year = Number(yearSelect.value);
+				if (!Number.isInteger(year) || year < 1900 || year > 9999) {
+					formStatus.textContent = 'Masukkan tahun antara 1900 dan 9999.';
+					yearSelect.value = String(visibleYear);
+					return;
+				}
+				setVisibleMonth(year, visibleMonth);
+			});
+
 			form.addEventListener('submit', (event) => {
 				event.preventDefault();
 				const title = titleInput.value.trim();
@@ -323,23 +365,25 @@
 			button, input { font: inherit; }
 			button { color: inherit; }
 			.app-shell {
-				width: min(1440px, calc(100% - 64px));
-				min-height: min(700px, calc(100vh - 48px));
+				width: min(1180px, calc(100% - 48px));
+				height: min(760px, calc(100vh - 48px));
 				margin: 24px auto;
 				display: grid;
-				grid-template-columns: minmax(270px, 0.8fr) minmax(540px, 2fr) minmax(250px, 0.7fr);
+				grid-template-columns: minmax(270px, 0.9fr) minmax(0, 1.8fr) minmax(270px, 0.9fr);
+				grid-template-areas: "details calendar form";
 				background: var(--panel);
 				border: 1px solid #262626;
 				border-radius: 18px;
 				overflow: hidden;
 				box-shadow: 0 24px 90px #0004;
 			}
-			.sidebar, .calendar-panel, .day-panel { min-width: 0; }
+			.sidebar, .calendar-panel, .day-panel { min-width: 0; min-height: 0; }
 			.sidebar {
+				grid-area: form;
 				display: flex;
 				flex-direction: column;
-				padding: 32px 28px 24px;
-				border-right: 1px solid var(--line);
+				padding: 24px 22px 20px;
+				border-left: 1px solid var(--line);
 			}
 			.brand {
 				display: inline-flex;
@@ -363,8 +407,10 @@
 				font-size: 16px;
 				font-weight: 850;
 			}
-			.entry-section { margin-top: 38px; }
+			.entry-section { margin-top: 28px; }
 			.entry-section { padding-bottom: 23px; border-bottom: 1px solid var(--line); }
+			.calendar-panel { grid-area: calendar; }
+			.day-panel { grid-area: details; }
 			.section-heading, .calendar-header, .day-panel-header {
 				display: flex;
 				align-items: center;
@@ -390,17 +436,18 @@
 			form input {
 				width: 100%;
 				height: 42px;
-				padding: 0 12px;
-				border: 1px solid #343434;
-				border-radius: 9px;
+				padding: 0 2px;
+				border: 0;
+				border-bottom: 1px solid #4a4a4a;
+				border-radius: 0;
 				outline: none;
-				background: #111111;
+				background: transparent;
 				color: var(--text);
 				font-size: 12px;
-				transition: border-color .16s, box-shadow .16s;
+				transition: border-color .16s;
 			}
 			form input::placeholder { color: #686868; }
-			form input:focus { border-color: #d8d8d8; box-shadow: 0 0 0 3px #ffffff20; }
+			form input:focus { border-bottom-color: #ffffff; }
 			.add-button {
 				display: flex;
 				justify-content: center;
@@ -433,7 +480,7 @@
 			}
 			.copy-button:hover { border-color: #858585; color: white; }
 			.markdown-output {
-				max-height: 190px;
+				max-height: min(190px, 25vh);
 				overflow: auto;
 				margin: 15px 0 0;
 				padding: 13px 12px;
@@ -446,10 +493,28 @@
 				overflow-wrap: anywhere;
 			}
 			.markdown-output.placeholder { color: #777777; }
-			.calendar-panel { display: flex; flex-direction: column; padding: 30px 30px 24px; }
-			.calendar-header { margin-bottom: 25px; }
+			.calendar-panel { display: flex; flex-direction: column; padding: 26px 24px 20px; }
+			.calendar-header {
+				width: 100%;
+				max-width: min(620px, 78vh);
+				margin: 0 auto 25px;
+				justify-content: space-between;
+			}
 			.calendar-header h2 { margin: 0; font-size: 23px; font-weight: 650; letter-spacing: -.045em; text-transform: capitalize; }
-			.month-controls { display: flex; gap: 5px; }
+			.month-controls { display: flex; align-items: center; justify-content: flex-start; gap: 8px; width: auto; }
+			.month-controls select, .year-select {
+				height: 32px;
+				border: 0;
+				border-bottom: 1px solid #494949;
+				border-radius: 0;
+				background: transparent;
+				color: #ededed;
+				font-size: 11px;
+			}
+			.month-controls select { width: 112px; padding: 0 3px; }
+			.month-controls select option { background: #111111; color: #ffffff; }
+			.year-select { width: 58px; padding: 0 3px; text-align: center; }
+			.calendar-navigation { display: flex; align-items: center; gap: 5px; margin-left: auto; }
 			.icon-button {
 				display: grid;
 				place-items: center;
@@ -464,9 +529,10 @@
 			.icon-button:hover { border-color: #343434; background: #202020; color: white; }
 			.icon-button svg { width: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 			.weekdays, .calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
-			.weekdays { margin-bottom: 12px; }
+			.weekdays { gap: 6px; margin-bottom: 12px; }
 			.weekdays span { padding: 9px 0; color: #818181; text-align: center; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
-			.calendar-grid { width: 100%; max-width: 640px; gap: 6px; margin-inline: auto; }
+			.weekdays, .calendar-grid { width: 100%; max-width: min(620px, 78vh); margin-inline: auto; }
+			.calendar-grid { gap: 6px; }
 			.day-cell {
 				position: relative;
 				display: flex;
@@ -490,6 +556,8 @@
 			.day-cell.marked.selected { border-color: #a8a8a8; background: #ffffff; color: #000000; }
 			.day-cell.marked:hover { background: #dedede; }
 			.day-cell.marked.selected:hover { background: #dedede; }
+			.day-cell.sunday { outline: 1px solid #d65a5a; outline-offset: -3px; }
+			.day-cell.today { box-shadow: inset 0 0 0 1px currentColor; }
 			.day-dot {
 				position: absolute;
 				bottom: 13%;
@@ -501,16 +569,29 @@
 				background: #000000;
 			}
 			.day-cell.marked.selected .day-dot { background: #000000; }
+			.today-dot {
+				position: absolute;
+				bottom: 13%;
+				left: 50%;
+				width: 5px;
+				height: 5px;
+				transform: translateX(-50%);
+				border-radius: 50%;
+				background: #ffffff;
+			}
+			.day-cell.marked .today-dot { background: #000000; }
 			.calendar-legend { display: flex; flex-wrap: wrap; gap: 17px; margin-top: auto; padding-top: 26px; color: #828282; font-size: 10px; }
 			.calendar-legend span { display: inline-flex; align-items: center; gap: 7px; }
 			.legend-dot { width: 8px; height: 8px; border-radius: 3px; background: #3a3a3a; }
 			.legend-dot.marked { background: #ffffff; }
 			.legend-dot.selected-legend { border: 1px solid #ffffff; background: #292929; }
-			.day-panel { display: flex; flex-direction: column; padding: 30px 20px 20px; border-left: 1px solid var(--line); }
+			.legend-dot.today-legend { border: 1px solid #ffffff; border-radius: 50%; background: transparent; }
+			.day-panel { display: flex; flex-direction: column; padding: 24px 20px 20px; border-right: 1px solid var(--line); }
+			.day-panel > .brand { margin-bottom: 34px; }
 			.day-panel-header { align-items: center; min-height: 34px; }
 			.day-panel-header h2 { font-size: 19px; text-transform: capitalize; }
 			.count-badge { min-width: 27px; padding: 5px 8px; border-radius: 8px; background: #242424; color: #ffffff; text-align: center; font-size: 10px; font-weight: 700; }
-			.day-agendas { display: grid; align-content: start; gap: 10px; margin-top: 23px; }
+			.day-agendas { display: grid; min-height: 0; flex: 1; align-content: start; gap: 10px; margin-top: 18px; overflow-y: auto; }
 			.agenda-card { position: relative; padding: 13px 34px 13px 13px; border: 1px solid #303030; border-radius: 10px; background: #121212; }
 			.agenda-time { display: flex; align-items: center; gap: 7px; color: #ffffff; font-size: 10px; font-weight: 700; }
 			.time-dot { width: 6px; height: 6px; border-radius: 50%; background: #ffffff; }
@@ -520,38 +601,41 @@
 			.empty-day { display: flex; flex: 1; min-height: 120px; flex-direction: column; align-items: center; justify-content: center; padding: 18px; text-align: center; }
 			.empty-day[hidden] { display: none; }
 			.empty-day strong { font-size: 12px; font-weight: 650; }
+			.day-panel .markdown-section { flex: 0 0 auto; }
 
-			@media (min-width: 1100px) and (min-height: 850px) {
-				.app-shell { min-height: min(700px, calc(100vh - 64px)); margin-top: max(24px, calc((100vh - 700px) / 2)); }
-				.calendar-panel { padding-top: 36px; }
-				.calendar-header { margin-bottom: 30px; }
-				.weekdays { margin-bottom: 14px; }
-				.calendar-grid { gap: 8px; }
+			@media (min-width: 1100px) {
+				body { height: 100vh; overflow: hidden; }
 			}
 			@media (max-width: 1099px) {
-				.app-shell { width: min(920px, calc(100% - 32px)); grid-template-columns: minmax(260px, .8fr) minmax(430px, 1.35fr); }
-				.day-panel { grid-column: 1 / -1; min-height: 220px; border-top: 1px solid var(--line); border-left: 0; }
+				.app-shell { width: min(920px, calc(100% - 32px)); height: auto; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas: "calendar calendar" "details form"; }
+				.day-panel { min-height: 300px; border-top: 1px solid var(--line); border-right: 1px solid var(--line); }
+				.sidebar { border-top: 1px solid var(--line); border-left: 0; }
 				.day-agendas { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
 				.empty-day { min-height: 120px; }
 			}
 			@media (max-width: 700px) {
-				.app-shell { width: min(520px, calc(100% - 20px)); margin: 10px auto; grid-template-columns: 1fr; border-radius: 14px; }
+				.app-shell { width: min(520px, calc(100% - 20px)); height: auto; margin: 10px auto; grid-template-columns: 1fr; grid-template-areas: "calendar" "details" "form"; border-radius: 14px; }
 				.sidebar { padding: 23px 21px 18px; border-right: 0; }
 				.entry-section { margin-top: 24px; }
-				.calendar-panel { padding: 27px 20px 22px; border-top: 1px solid var(--line); }
+				.calendar-panel { padding: 27px 20px 22px; border-top: 0; }
 				.calendar-header { margin-bottom: 24px; }
 				.calendar-header h2 { font-size: 21px; }
 				.weekdays { margin-bottom: 8px; }
-				.calendar-grid { gap: 4px; }
+				.weekdays, .calendar-grid { max-width: 100%; gap: 4px; }
+				.calendar-header { flex-wrap: wrap; }
+				.month-controls { flex-wrap: wrap; justify-content: flex-start; }
 				.day-cell { border-radius: 9px; font-size: 13px; }
 				.calendar-legend { padding-top: 20px; }
-				.day-panel { min-height: 260px; padding: 25px 20px 19px; }
+				.day-panel { min-height: 260px; padding: 25px 20px 19px; border-right: 0; }
+				.sidebar { border-top: 1px solid var(--line); border-left: 0; }
+				.day-panel > .brand { margin-bottom: 20px; }
+				.markdown-output { max-height: 150px; }
 			}
 			@media (max-width: 380px) {
 				.sidebar { padding-right: 16px; padding-left: 16px; }
 				.calendar-panel, .day-panel { padding-right: 15px; padding-left: 15px; }
 				.weekdays span { font-size: 9px; }
-				.calendar-grid { gap: 2px; }
+				.weekdays, .calendar-grid { gap: 2px; }
 				.day-cell { border-radius: 7px; font-size: 12px; }
 			}
 		</style>
